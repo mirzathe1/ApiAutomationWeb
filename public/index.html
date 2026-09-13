@@ -3,281 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Therap API Dashboard</title>
-    
-    <!-- Tailwind CSS CDN -->
+    <title>Therap API Integration Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Tailwind Custom Configuration -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        therap: {
-                            DEFAULT: '#F26522',
-                            hover: '#D95A1E',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
     <style>
-        /* Terminal Box Custom Styles */
-        .log-entry { 
-            margin-bottom: 6px; 
-            border-bottom: 1px solid #333; 
-            padding-bottom: 6px;
-            word-break: break-word; 
-        }
-        .log-error { color: #FF5555; }
-        
-        /* Custom File Input Styling for Dark Mode */
-        input[type="file"]::file-selector-button {
-            border: none;
-            background: #F26522;
-            color: #ffffff;
-            padding: 8px 16px;
-            border-radius: 9999px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s ease-in-out;
-            margin-right: 12px;
-        }
-        input[type="file"]::file-selector-button:hover {
-            background: #D95A1E;
-        }
+        /* Custom scrollbar for JSON blocks */
+        pre::-webkit-scrollbar { width: 8px; height: 8px; }
+        pre::-webkit-scrollbar-track { background: #0f172a; }
+        pre::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        pre::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-200 p-4 md:p-8 font-sans min-h-screen selection:bg-therap selection:text-white">
-    
-    <div class="max-w-7xl mx-auto">
+<body class="bg-[#0B1120] text-slate-300 font-sans min-h-screen p-6 selection:bg-indigo-500 selection:text-white">
+
+    <div class="max-w-[1400px] mx-auto">
         
         <!-- Header -->
-        <div class="mb-8">
-            <h2 class="text-3xl font-extrabold text-white flex items-center gap-3">
-                <i data-lucide="cloud-upload" class="w-8 h-8 text-therap"></i>
-                Therap Automation Hub
-            </h2>
-            <p class="text-slate-400 mt-1 font-medium">Bulk upload attendance records securely to the Therap API.</p>
+        <div class="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-900/50 p-2.5 rounded-lg border border-indigo-500/30">
+                    <i data-lucide="chevron-right" class="w-6 h-6 text-indigo-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-wide">Therap API Integration Suite</h1>
+                    <p class="text-sm text-slate-500">All-in-One Auth & Attendance Data Interface</p>
+                </div>
+            </div>
+            <div class="bg-emerald-900/30 text-emerald-400 border border-emerald-800 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 shadow-sm">
+                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                Proxy Connected
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Grid Layout -->
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
             
-            <!-- LEFT COLUMN: Control Panel -->
-            <div class="lg:col-span-1">
-                <div class="bg-slate-800 rounded-2xl shadow-lg border border-slate-700 overflow-hidden h-full flex flex-col">
-                    <div class="bg-therap text-white px-6 py-4 flex items-center gap-2">
-                        <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
-                        <h5 class="font-bold text-lg m-0">Control Panel</h5>
+            <!-- LEFT COLUMN: Forms -->
+            <div class="xl:col-span-5 space-y-6">
+                
+                <!-- STEP 1: AUTHENTICATION -->
+                <div class="bg-[#111827] border border-slate-800 rounded-xl p-5 shadow-lg">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-sm font-bold text-slate-300 flex items-center gap-2 tracking-widest">
+                            <i data-lucide="key" class="w-4 h-4 text-indigo-400"></i> STEP 1: GENERATE TOKEN
+                        </h2>
+                        <span id="tokenStatus" class="bg-slate-800 text-slate-400 text-[10px] px-2 py-1 rounded font-bold tracking-wider">TOKEN INACTIVE</span>
                     </div>
-                    
-                    <div class="p-6 flex-1">
-                        <form id="uploadForm">
-                            <div class="mb-6">
-                                <label for="excelFile" class="block font-bold text-sm text-slate-300 mb-2">1. Select Data File (.xlsx)</label>
-                                <input type="file" id="excelFile" class="block w-full text-sm text-slate-400 bg-slate-900 border border-slate-700 rounded-full cursor-pointer focus:outline-none focus:border-therap focus:ring-1 focus:ring-therap" accept=".xlsx" required>
+
+                    <form id="authForm" class="space-y-4">
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Login Name</label>
+                                <input type="text" id="loginName" required class="w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
                             </div>
-                            
-                            <hr class="border-slate-700 mb-6">
-                            
-                            <label class="block font-bold text-sm text-slate-300 mb-3">2. Execute Action</label>
-                            
-                            <!-- Action Buttons -->
-                            <button type="submit" class="w-full bg-therap hover:bg-therap-hover text-white rounded-full py-3 px-4 flex justify-center items-center gap-2 font-bold shadow-md transition-all duration-200 mb-3" id="runBtn">
-                                <i data-lucide="play" class="w-5 h-5" id="runIcon"></i> 
-                                <span id="runText">Run Automation</span>
-                            </button>
-                            
-                            <button type="button" class="w-full bg-transparent border-2 border-slate-600 hover:border-slate-500 hover:bg-slate-700 text-slate-300 rounded-full py-2.5 px-4 flex justify-center items-center gap-2 font-semibold transition-all duration-200" id="clearFormBtn">
-                                <i data-lucide="eraser" class="w-4 h-4"></i> Clear File
-                            </button>
-                        </form>
-                    </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Provider Code</label>
+                                <input type="text" id="providerCode" required class="w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Password</label>
+                                <input type="password" id="password" required class="w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                            </div>
+                        </div>
+                        <button type="submit" id="authBtn" class="w-full bg-[#1E293B] hover:bg-slate-700 text-slate-300 border border-slate-600 rounded-lg py-2.5 text-sm font-semibold flex items-center justify-center gap-2 transition-all">
+                            <i data-lucide="lock" class="w-4 h-4"></i> Generate & Active Bearer Token
+                        </button>
+                    </form>
+                </div>
+
+                <!-- STEP 2: INPUT DATA -->
+                <div class="bg-[#111827] border border-slate-800 rounded-xl p-5 shadow-lg opacity-50 pointer-events-none transition-opacity duration-300" id="step2Panel">
+                    <h2 class="text-sm font-bold text-slate-300 flex items-center gap-2 tracking-widest mb-5">
+                        <i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i> STEP 2: INPUT ATTENDANCE DATA
+                    </h2>
+
+                    <form id="payloadForm" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Service Form ID <span class="text-red-500">*</span></label>
+                                <input type="text" id="serviceFormId" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Option Code <span class="text-red-500">*</span></label>
+                                <input type="text" id="optionCode" placeholder="e.g. P" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Service Date <span class="text-red-500">*</span></label>
+                                <input type="text" id="serviceDate" placeholder="MM/DD/YYYY" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Time In</label>
+                                    <input type="text" id="timeIn" placeholder="10:30 AM" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Time Out</label>
+                                    <input type="text" id="timeOut" placeholder="11:30 AM" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Comments</label>
+                            <textarea id="comments" rows="2" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg py-3 text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20 transition-all">
+                            <i data-lucide="send" class="w-4 h-4"></i> Generate & Submit POST Request
+                        </button>
+                    </form>
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: Output Terminal -->
-            <div class="lg:col-span-2">
-                <div class="bg-slate-800 rounded-2xl shadow-lg border border-slate-700 overflow-hidden h-full flex flex-col">
-                    
-                    <!-- Terminal Header -->
-                    <div class="bg-slate-950 text-white px-6 py-4 flex justify-between items-center border-b border-slate-800">
-                        <h5 class="font-bold text-lg m-0 flex items-center gap-2">
-                            <i data-lucide="terminal" class="w-5 h-5 text-slate-400"></i>
-                            Live Execution Logs
-                        </h5>
-                        <div class="flex gap-2">
-                            <button class="flex items-center gap-1.5 text-xs border border-slate-600 text-slate-300 rounded-full px-3 py-1.5 hover:bg-slate-700 hover:text-white transition-colors" id="copyLogsBtn">
-                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
-                            </button>
-                            <button class="flex items-center gap-1.5 text-xs border border-red-900/50 text-red-400 rounded-full px-3 py-1.5 hover:bg-red-900/30 hover:text-red-300 transition-colors" id="clearLogsBtn">
-                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear
-                            </button>
-                        </div>
+            <!-- RIGHT COLUMN: JSON Displays -->
+            <div class="xl:col-span-7 space-y-6">
+                
+                <!-- JSON Preview Box -->
+                <div class="bg-[#111827] border border-slate-800 rounded-xl overflow-hidden shadow-lg flex flex-col h-[320px]">
+                    <div class="flex justify-between items-center bg-[#0f172a] px-4 py-3 border-b border-slate-800">
+                        <h2 class="text-xs font-bold text-slate-400 flex items-center gap-2 tracking-widest">
+                            <i data-lucide="code-2" class="w-4 h-4"></i> GENERATED REQUEST PAYLOAD
+                        </h2>
+                        <span class="text-[10px] font-bold bg-slate-800 text-slate-400 px-2 py-0.5 rounded">JSON</span>
                     </div>
-
-                    <!-- Terminal Body -->
-                    <div class="p-6 bg-slate-800 flex-1 flex flex-col">
-                        
-                        <!-- Status Badges -->
-                        <div class="flex gap-3 mb-4">
-                            <span class="inline-flex items-center gap-1.5 bg-emerald-900/40 text-emerald-400 px-4 py-1.5 rounded-full text-sm font-bold border border-emerald-800" id="passBadge">
-                                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                                <span id="passCount">Passed: 0</span>
-                            </span>
-                            <span class="inline-flex items-center gap-1.5 bg-red-900/40 text-red-400 px-4 py-1.5 rounded-full text-sm font-bold border border-red-800" id="failBadge">
-                                <i data-lucide="x-circle" class="w-4 h-4"></i>
-                                <span id="failCount">Failed: 0</span>
-                            </span>
-                        </div>
-                        
-                        <!-- The Terminal Box -->
-                        <div class="h-[calc(100vh-320px)] min-h-[400px] overflow-y-auto bg-black text-[#4AF626] font-mono rounded-xl p-4 text-sm shadow-inner pb-8 w-full border border-slate-900" id="logBox">
-                            <div class="text-slate-500 italic flex items-center gap-2">
-                                <i data-lucide="clock" class="w-4 h-4"></i>
-                                Waiting for automation to start...
-                            </div>
-                        </div>
-
+                    <div class="p-4 flex-1 overflow-auto bg-[#0B1120]">
+                        <pre id="payloadPreview" class="text-emerald-400 text-[13px] font-mono leading-relaxed">{}</pre>
                     </div>
                 </div>
-            </div>
 
+                <!-- API Response Box -->
+                <div class="bg-[#111827] border border-slate-800 rounded-xl overflow-hidden shadow-lg flex flex-col h-[320px]">
+                    <div class="flex justify-between items-center bg-[#0f172a] px-4 py-3 border-b border-slate-800">
+                        <h2 class="text-xs font-bold text-slate-400 flex items-center gap-2 tracking-widest">
+                            <i data-lucide="server" class="w-4 h-4"></i> RESPONSE OUTPUT LOG
+                        </h2>
+                        <span id="responseStatus" class="text-[10px] font-bold bg-slate-800 text-slate-500 px-2 py-0.5 rounded">WAITING</span>
+                    </div>
+                    <div class="p-4 flex-1 overflow-auto bg-[#0B1120]">
+                        <pre id="responseLog" class="text-slate-500 text-[13px] font-mono leading-relaxed">// Submit request to view response...</pre>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
     <script>
-        // Initialize Lucide Icons immediately
         lucide.createIcons();
 
-        // --- DOM Elements ---
-        const form = document.getElementById('uploadForm');
-        const fileInput = document.getElementById('excelFile');
-        const runBtn = document.getElementById('runBtn');
-        const runText = document.getElementById('runText');
-        const runIcon = document.getElementById('runIcon');
-        const clearFormBtn = document.getElementById('clearFormBtn');
-        const copyLogsBtn = document.getElementById('copyLogsBtn');
-        const clearLogsBtn = document.getElementById('clearLogsBtn');
-        const logBox = document.getElementById('logBox');
+        // DOM Elements
+        const authForm = document.getElementById('authForm');
+        const authBtn = document.getElementById('authBtn');
+        const tokenStatus = document.getElementById('tokenStatus');
+        const step2Panel = document.getElementById('step2Panel');
         
-        let totalPassed = 0;
-        let totalFailed = 0;
+        const payloadForm = document.getElementById('payloadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const payloadPreview = document.getElementById('payloadPreview');
+        const responseLog = document.getElementById('responseLog');
+        const responseStatus = document.getElementById('responseStatus');
 
-        // --- Execute Automation ---
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            // UI Loading State
-            runBtn.disabled = true;
-            runBtn.classList.add('opacity-75', 'cursor-not-allowed');
-            fileInput.disabled = true;
-            
-            // Swap to loading icon
-            runIcon.setAttribute('data-lucide', 'loader-circle');
-            runIcon.classList.add('animate-spin');
-            runText.innerText = 'Processing...';
-            lucide.createIcons();
-            
-            // Clear placeholder text if it's the first run
-            if(logBox.innerText.includes('Waiting')) logBox.innerHTML = '';
-
-            addLog("[SYSTEM] Uploading file to server...", false);
-
-            const formData = new FormData();
-            formData.append('excelFile', fileInput.files[0]);
-
-            try {
-                const response = await fetch('/api/run-automation', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Server error');
-
-                // Update Counters
-                totalPassed += data.passed;
-                totalFailed += data.failed;
-                document.getElementById('passCount').innerText = `Passed: ${totalPassed}`;
-                document.getElementById('failCount').innerText = `Failed: ${totalFailed}`;
-                
-                // Print logs
-                data.logs.forEach(log => {
-                    const isError = log.includes('❌') || log.includes('FAILED');
-                    addLog(log, isError);
-                });
-
-                addLog(`[SYSTEM] Batch finished.`, false);
-
-            } catch (error) {
-                addLog(`[CRITICAL ERROR] ${error.message}`, true);
-                alert('Execution failed. Check logs.');
-            } finally {
-                // Reset Button
-                runBtn.disabled = false;
-                runBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-                fileInput.disabled = false;
-                fileInput.value = ''; 
-                
-                // Swap back to play icon
-                runIcon.setAttribute('data-lucide', 'play');
-                runIcon.classList.remove('animate-spin');
-                runText.innerText = 'Run Automation';
-                lucide.createIcons();
-            }
-        });
-
-        // --- Helper function to append logs with smooth scroll ---
-        function addLog(text, isError) {
-            const div = document.createElement('div');
-            div.className = 'log-entry';
-            if (isError) div.classList.add('log-error');
-            div.innerText = `[${new Date().toLocaleTimeString()}] ${text}`;
-            logBox.appendChild(div);
-            
-            setTimeout(() => {
-                div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }, 10);
+        // --- Live JSON Preview Logic ---
+        function generatePayloadObject() {
+            // Build the specific JSON structure Therap expects for Attendance
+            return {
+                serviceFormId: document.getElementById('serviceFormId').value || "",
+                serviceDate: document.getElementById('serviceDate').value || "",
+                optionCode: document.getElementById('optionCode').value || "",
+                timeInOut: [{
+                    timeIn: document.getElementById('timeIn').value || "",
+                    timeOut: document.getElementById('timeOut').value || "",
+                    billable: true,
+                    serviceType: 0
+                }],
+                comments: document.getElementById('comments').value || ""
+            };
         }
 
-        // --- Button: Clear Form ---
-        clearFormBtn.addEventListener('click', () => {
-            fileInput.value = '';
+        function updateLivePreview() {
+            const payload = generatePayloadObject();
+            payloadPreview.textContent = JSON.stringify(payload, null, 2);
+        }
+
+        // Attach event listeners to all inputs in Step 2 so it updates as you type
+        document.querySelectorAll('.payload-input').forEach(input => {
+            input.addEventListener('input', updateLivePreview);
         });
 
-        // --- Button: Clear Logs ---
-        clearLogsBtn.addEventListener('click', () => {
-            logBox.innerHTML = `
-                <div class="text-slate-500 italic flex items-center gap-2">
-                    <i data-lucide="clock" class="w-4 h-4"></i>
-                    Waiting for automation to start...
-                </div>
-            `;
+        // Initialize preview on page load
+        updateLivePreview();
+
+        // --- Step 1: Authentication ---
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            authBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Authenticating...';
             lucide.createIcons();
-            totalPassed = 0;
-            totalFailed = 0;
-            document.getElementById('passCount').innerText = `Passed: 0`;
-            document.getElementById('failCount').innerText = `Failed: 0`;
+            authBtn.disabled = true;
+
+            const credentials = {
+                loginName: document.getElementById('loginName').value,
+                providerCode: document.getElementById('providerCode').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const res = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(credentials)
+                });
+
+                if (!res.ok) throw new Error("Login failed");
+
+                // Success UI changes
+                tokenStatus.textContent = "TOKEN ACTIVE";
+                tokenStatus.className = "bg-emerald-900/30 text-emerald-400 text-[10px] px-2 py-1 rounded font-bold tracking-wider border border-emerald-800";
+                
+                authBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Authenticated';
+                authBtn.classList.replace('text-slate-300', 'text-emerald-400');
+                
+                // Unlock Step 2
+                step2Panel.classList.remove('opacity-50', 'pointer-events-none');
+                
+            } catch (err) {
+                alert(err.message);
+                authBtn.innerHTML = '<i data-lucide="lock" class="w-4 h-4"></i> Generate & Active Bearer Token';
+                authBtn.disabled = false;
+            }
+            lucide.createIcons();
         });
 
-        // --- Button: Copy Logs ---
-        copyLogsBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(logBox.innerText).then(() => {
-                const originalHtml = copyLogsBtn.innerHTML;
-                copyLogsBtn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Copied!';
+        // --- Step 2: Submit Payload ---
+        payloadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Submitting...';
+            lucide.createIcons();
+            submitBtn.disabled = true;
+
+            const payload = generatePayloadObject();
+            
+            // Reset Response Box
+            responseLog.textContent = "Waiting for server...";
+            responseLog.className = "text-slate-400 text-[13px] font-mono leading-relaxed";
+            responseStatus.textContent = "SENDING...";
+            responseStatus.className = "text-[10px] font-bold bg-indigo-900/50 text-indigo-400 border border-indigo-800 px-2 py-0.5 rounded";
+
+            try {
+                const res = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                
+                // Print output exactly as received
+                responseLog.textContent = JSON.stringify(data, null, 2);
+
+                // Style based on success vs error (e.g., HTTP 422 Error)
+                if (res.ok) {
+                    responseLog.classList.replace('text-slate-400', 'text-emerald-400');
+                    responseStatus.textContent = `HTTP ${res.status} SUCCESS`;
+                    responseStatus.className = "text-[10px] font-bold bg-emerald-900/30 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded";
+                } else {
+                    responseLog.classList.replace('text-slate-400', 'text-red-400');
+                    responseStatus.textContent = `HTTP ${res.status} ERROR`;
+                    responseStatus.className = "text-[10px] font-bold bg-red-900/30 text-red-400 border border-red-800 px-2 py-0.5 rounded";
+                }
+
+            } catch (err) {
+                responseLog.textContent = err.message;
+                responseLog.classList.replace('text-slate-400', 'text-red-400');
+            } finally {
+                submitBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Generate & Submit POST Request';
+                submitBtn.disabled = false;
                 lucide.createIcons();
-                setTimeout(() => {
-                    copyLogsBtn.innerHTML = originalHtml;
-                    lucide.createIcons();
-                }, 2000);
-            });
+            }
         });
     </script>
 </body>

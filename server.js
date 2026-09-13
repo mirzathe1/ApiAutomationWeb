@@ -1,86 +1,62 @@
 import express from 'express';
-import multer from 'multer';
-import fs from 'fs';
-import { getExcelData, sanitizeText } from './utils/excelReader.js';
 import { TherapClient } from './api/TherapClient.js';
 
 const app = express();
-const upload = multer({ dest: 'uploads/' });
-const BASE_URL = "https://billing.therapdev.net";
+const PORT = 3000;
+const BASE_URL = 'https://billing.therapdev.net'; // Change this if you use a different base URL
 
-app.use(express.static('public')); // Serves your index.html
+// Middleware to parse JSON payloads from the frontend
 app.use(express.json());
+app.use(express.static('public'));
 
-app.post('/api/run-automation', upload.single('excelFile'), async (req, res) => {
-    if (!req.file) return res.status(400).json({ error: "No file uploaded." });
+// Hold the active client session in memory for this local tool
+let activeSession = null;
 
-    const filePath = req.file.path;
-    let passed = 0;
-    let failed = 0;
-    let logs = [];
-
+// --- API ROUTE 1: Authentication ---
+app.post('/api/auth', async (req, res) => {
     try {
-        // 1. Read Excel Data
-        const { loginCredentials, rows } = getExcelData(filePath);
+        const credentials = req.body;
         
-        // 2. Initialize API
-        const api = new TherapClient(BASE_URL);
-        await api.authenticate(loginCredentials);
-        logs.push("[SYSTEM] Authenticated successfully.");
-
-        // 3. Process Rows
-        for (let index = 0; index < rows.length; index++) {
-            const row = rows[index];
-            if (!row.serviceDate) continue;
-
-            let formattedDate = typeof row.serviceDate === 'number' 
-                ? new Date(Date.UTC(0, 0, row.serviceDate - 1)).toLocaleDateString('en-US', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' })
-                : String(row.serviceDate).split(" ")[0];
-
-            const dataPayload = {
-                serviceDate: formattedDate,
-                timeInOut: [{ timeIn: sanitizeText(row.timeIn), timeOut: sanitizeText(row.timeOut) }],
-                optionCode: row.optionCode ? String(row.optionCode).trim() : "",
-                status: row.status ? String(row.status).trim().toUpperCase() : "INPREP",
-                serviceFormId: sanitizeText(row.serviceFormId),
-                comments: sanitizeText(row.comments)
-            };
-
-            try {
-                // Axios automatically throws an error if status is not 2xx, 
-                // which acts exactly like our "Option B" graceful skip!
-                const postResponse = await api.submitAttendance(dataPayload);
-                const newFormId = postResponse.data.formId;
-
-                const verifyResponse = await api.verifyAttendance(newFormId);
-                
-                passed++;
-                logs.push(`✅ Row ${index + 1}: SUCCESS`);
-            } catch (error) {
-                failed++;
-                // Extract API error message if it exists
-                const errorDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
-                logs.push(`❌ Row ${index + 1}: FAILED - ${errorDetail}`);
-            }
-        }
-
-        // Cleanup: Delete the uploaded file from the server
-        fs.unlinkSync(filePath);
-
-        // 4. Send Results
-        res.status(200).json({
-            message: "Automation Complete",
-            passed,
-            failed,
-            logs
+        // Initialize a fresh client and authenticate
+        activeSession = new TherapClient(BASE_URL);
+        await activeSession.authenticate(credentials);
+        
+        res.status(200).json({ 
+            success: true, 
+            message: "Token Generated & Active",
+            tokenPreview: activeSession.authToken.substring(0, 20) + "..."
         });
-
     } catch (error) {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-        console.error(error);
-        res.status(500).json({ error: error.message });
+        console.error("Auth Error:", error.message);
+        activeSession = null;
+        res.status(401).json({ error: "Authentication Failed. Check credentials." });
     }
 });
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+// --- API ROUTE 2: Submit Payload ---
+app.post('/api/submit', async (req, res) => {
+    if (!activeSession || !activeSession.authToken) {
+        return res.status(401).json({ error: "No active token. Please complete Step 1 first." });
+    }
+
+    try {
+        const payload = req.body;
+        // Submit the raw payload sent from the UI directly to Therap
+        const response = await activeSession.submitAttendance(payload);
+        
+        res.status(200).json({
+            status: response.status,
+            data: response.data
+        });
+    } catch (error) {
+        // If Therap throws a 422 or 500, we want to send that exact JSON back to the UI terminal
+        const errorData = error.response ? error.response.data : { message: error.message };
+        const statusCode = error.response ? error.response.status : 500;
+        
+        res.status(statusCode).json(errorData);
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`🚀 API Tester running on http://localhost:${PORT}`);
+});
