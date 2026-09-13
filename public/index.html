@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Therap API Integration Suite</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         /* Custom scrollbar for JSON blocks */
@@ -60,9 +62,14 @@
                                 <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Provider Code</label>
                                 <input type="text" id="providerCode" required class="w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
                             </div>
-                            <div>
+                            
+                            <!-- Password with Eye Icon -->
+                            <div class="relative">
                                 <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Password</label>
-                                <input type="password" id="password" required class="w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                                <input type="password" id="password" required class="w-full bg-[#0B1120] border border-slate-700 rounded-lg pl-3 pr-10 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors">
+                                <button type="button" id="togglePasswordBtn" class="absolute right-3 top-[26px] text-slate-500 hover:text-slate-300 transition-colors">
+                                    <i data-lucide="eye" id="eyeIcon" class="w-4 h-4"></i>
+                                </button>
                             </div>
                         </div>
                         <button type="submit" id="authBtn" class="w-full bg-[#1E293B] hover:bg-slate-700 text-slate-300 border border-slate-600 rounded-lg py-2.5 text-sm font-semibold flex items-center justify-center gap-2 transition-all">
@@ -87,19 +94,24 @@
                                 <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Option Code <span class="text-red-500">*</span></label>
                                 <input type="text" id="optionCode" placeholder="e.g. P" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                             </div>
+                            
+                            <!-- Start and End Dates -->
                             <div>
-                                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Service Date <span class="text-red-500">*</span></label>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Service Date (Start) <span class="text-red-500">*</span></label>
                                 <input type="text" id="serviceDate" placeholder="MM/DD/YYYY" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Time In</label>
-                                    <input type="text" id="timeIn" placeholder="10:30 AM" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Time Out</label>
-                                    <input type="text" id="timeOut" placeholder="11:30 AM" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                                </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Service Date (End) <span class="text-indigo-400 text-[9px]">(Optional)</span></label>
+                                <input type="text" id="serviceDateEnd" placeholder="MM/DD/YYYY" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Time In</label>
+                                <input type="text" id="timeIn" placeholder="10:30 AM" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1.5 uppercase">Time Out</label>
+                                <input type="text" id="timeOut" placeholder="11:30 AM" class="payload-input w-full bg-[#0B1120] border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                             </div>
                         </div>
                         <div>
@@ -123,7 +135,7 @@
                         <h2 class="text-xs font-bold text-slate-400 flex items-center gap-2 tracking-widest">
                             <i data-lucide="code-2" class="w-4 h-4"></i> GENERATED REQUEST PAYLOAD
                         </h2>
-                        <span class="text-[10px] font-bold bg-slate-800 text-slate-400 px-2 py-0.5 rounded">JSON</span>
+                        <span id="previewCountBadge" class="text-[10px] font-bold bg-slate-800 text-slate-400 px-2 py-0.5 rounded">1 PAYLOAD</span>
                     </div>
                     <div class="p-4 flex-1 overflow-auto bg-[#0B1120]">
                         <pre id="payloadPreview" class="text-emerald-400 text-[13px] font-mono leading-relaxed">{}</pre>
@@ -161,13 +173,49 @@
         const payloadPreview = document.getElementById('payloadPreview');
         const responseLog = document.getElementById('responseLog');
         const responseStatus = document.getElementById('responseStatus');
+        const previewCountBadge = document.getElementById('previewCountBadge');
 
-        // --- Live JSON Preview Logic ---
-        function generatePayloadObject() {
-            // Build the specific JSON structure Therap expects for Attendance
+        // --- Password Eye Toggle ---
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        togglePasswordBtn.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            
+            // Swap the Lucide icon
+            eyeIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+            lucide.createIcons();
+        });
+
+
+        // --- Date Array Generator ---
+        function getDatesBetween(startDateStr, endDateStr) {
+            if (!endDateStr) return [startDateStr]; 
+            
+            const dates = [];
+            let currentDate = new Date(startDateStr);
+            const endDate = new Date(endDateStr);
+            
+            if (isNaN(currentDate) || isNaN(endDate) || currentDate > endDate) {
+                return [startDateStr]; // Fallback if dates are invalid
+            }
+            
+            while (currentDate <= endDate) {
+                const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(currentDate.getDate()).padStart(2, '0');
+                const yyyy = currentDate.getFullYear();
+                dates.push(`${mm}/${dd}/${yyyy}`);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            return dates;
+        }
+
+        function generatePayloadObject(specificDate) {
             return {
                 serviceFormId: document.getElementById('serviceFormId').value || "",
-                serviceDate: document.getElementById('serviceDate').value || "",
+                serviceDate: specificDate || document.getElementById('serviceDate').value || "",
                 optionCode: document.getElementById('optionCode').value || "",
                 timeInOut: [{
                     timeIn: document.getElementById('timeIn').value || "",
@@ -180,17 +228,31 @@
         }
 
         function updateLivePreview() {
-            const payload = generatePayloadObject();
-            payloadPreview.textContent = JSON.stringify(payload, null, 2);
+            const startDate = document.getElementById('serviceDate').value;
+            const endDate = document.getElementById('serviceDateEnd').value;
+            const datesArray = getDatesBetween(startDate, endDate);
+            
+            // Update badge text
+            previewCountBadge.textContent = `${datesArray.length} PAYLOAD${datesArray.length > 1 ? 'S' : ''}`;
+            previewCountBadge.className = datesArray.length > 1 
+                ? "text-[10px] font-bold bg-indigo-900/50 text-indigo-400 border border-indigo-800 px-2 py-0.5 rounded"
+                : "text-[10px] font-bold bg-slate-800 text-slate-400 px-2 py-0.5 rounded";
+
+            // If multiple, show an array of payloads for clarity
+            if (datesArray.length > 1) {
+                const multiPayload = datesArray.map(d => generatePayloadObject(d));
+                payloadPreview.textContent = JSON.stringify(multiPayload, null, 2);
+            } else {
+                const singlePayload = generatePayloadObject(startDate);
+                payloadPreview.textContent = JSON.stringify(singlePayload, null, 2);
+            }
         }
 
-        // Attach event listeners to all inputs in Step 2 so it updates as you type
         document.querySelectorAll('.payload-input').forEach(input => {
             input.addEventListener('input', updateLivePreview);
         });
-
-        // Initialize preview on page load
         updateLivePreview();
+
 
         // --- Step 1: Authentication ---
         authForm.addEventListener('submit', async (e) => {
@@ -214,14 +276,11 @@
 
                 if (!res.ok) throw new Error("Login failed");
 
-                // Success UI changes
                 tokenStatus.textContent = "TOKEN ACTIVE";
                 tokenStatus.className = "bg-emerald-900/30 text-emerald-400 text-[10px] px-2 py-1 rounded font-bold tracking-wider border border-emerald-800";
-                
                 authBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Authenticated';
                 authBtn.classList.replace('text-slate-300', 'text-emerald-400');
                 
-                // Unlock Step 2
                 step2Panel.classList.remove('opacity-50', 'pointer-events-none');
                 
             } catch (err) {
@@ -232,52 +291,70 @@
             lucide.createIcons();
         });
 
-        // --- Step 2: Submit Payload ---
+
+        // --- Step 2: Submit Payload(s) ---
         payloadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Submitting...';
             lucide.createIcons();
             submitBtn.disabled = true;
 
-            const payload = generatePayloadObject();
+            const startDate = document.getElementById('serviceDate').value;
+            const endDate = document.getElementById('serviceDateEnd').value;
+            const datesToProcess = getDatesBetween(startDate, endDate);
             
-            // Reset Response Box
-            responseLog.textContent = "Waiting for server...";
-            responseLog.className = "text-slate-400 text-[13px] font-mono leading-relaxed";
-            responseStatus.textContent = "SENDING...";
+            // Log with individual colored spans
+            responseLog.innerHTML = `<span class="text-slate-400">[SYSTEM] Initiating bulk submit for ${datesToProcess.length} date(s)...\n\n</span>`;
+            responseStatus.textContent = "PROCESSING...";
             responseStatus.className = "text-[10px] font-bold bg-indigo-900/50 text-indigo-400 border border-indigo-800 px-2 py-0.5 rounded";
 
-            try {
-                const res = await fetch('/api/submit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+            let passCount = 0;
+            let failCount = 0;
 
-                const data = await res.json();
+            // Loop through each date and submit sequentially
+            for (let i = 0; i < datesToProcess.length; i++) {
+                const dateStr = datesToProcess[i];
+                const payload = generatePayloadObject(dateStr);
                 
-                // Print output exactly as received
-                responseLog.textContent = JSON.stringify(data, null, 2);
+                try {
+                    const res = await fetch('/api/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
 
-                // Style based on success vs error (e.g., HTTP 422 Error)
-                if (res.ok) {
-                    responseLog.classList.replace('text-slate-400', 'text-emerald-400');
-                    responseStatus.textContent = `HTTP ${res.status} SUCCESS`;
-                    responseStatus.className = "text-[10px] font-bold bg-emerald-900/30 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded";
-                } else {
-                    responseLog.classList.replace('text-slate-400', 'text-red-400');
-                    responseStatus.textContent = `HTTP ${res.status} ERROR`;
-                    responseStatus.className = "text-[10px] font-bold bg-red-900/30 text-red-400 border border-red-800 px-2 py-0.5 rounded";
+                    const data = await res.json();
+                    
+                    if (res.ok) {
+                        passCount++;
+                        responseLog.innerHTML += `<span class="text-emerald-400">✅ [${dateStr}] SUCCESS: \n${JSON.stringify(data, null, 2)}\n\n</span>`;
+                    } else {
+                        failCount++;
+                        responseLog.innerHTML += `<span class="text-red-400">❌ [${dateStr}] ERROR (HTTP ${res.status}): \n${JSON.stringify(data, null, 2)}\n\n</span>`;
+                    }
+                } catch (err) {
+                    failCount++;
+                    responseLog.innerHTML += `<span class="text-red-500">❌ [${dateStr}] CRITICAL ERROR: ${err.message}\n\n</span>`;
                 }
 
-            } catch (err) {
-                responseLog.textContent = err.message;
-                responseLog.classList.replace('text-slate-400', 'text-red-400');
-            } finally {
-                submitBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Generate & Submit POST Request';
-                submitBtn.disabled = false;
-                lucide.createIcons();
+                // Scroll to bottom as it processes
+                responseLog.scrollTop = responseLog.scrollHeight;
             }
+
+            // Final Status Update
+            if (failCount === 0) {
+                responseStatus.textContent = "ALL SUCCESS";
+                responseStatus.className = "text-[10px] font-bold bg-emerald-900/30 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded";
+            } else {
+                responseStatus.textContent = `${failCount} ERROR(S)`;
+                responseStatus.className = "text-[10px] font-bold bg-red-900/30 text-red-400 border border-red-800 px-2 py-0.5 rounded";
+            }
+
+            responseLog.innerHTML += `<span class="text-slate-400">[SYSTEM] Finished. Passed: ${passCount} | Failed: ${failCount}</span>`;
+
+            submitBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Generate & Submit POST Request';
+            submitBtn.disabled = false;
+            lucide.createIcons();
         });
     </script>
 </body>
