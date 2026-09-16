@@ -57,6 +57,13 @@ app.post('/api/submit', async (req, res) => {
     }
 });
 
+
+// --- API ROUTE 3: Logout ---
+app.post('/api/logout', (req, res) => {
+    activeSession = null; // Instantly destroy the active token in memory
+    res.status(200).json({ success: true, message: "Session destroyed." });
+});
+
 app.listen(PORT, () => {
     console.log(`🚀 API Tester running on http://localhost:${PORT}`);
 });
