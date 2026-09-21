@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Therap API Integration</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Custom scrollbar for terminals */
         pre::-webkit-scrollbar { width: 6px; height: 6px; }
         pre::-webkit-scrollbar-track { background: #1e293b; }
         pre::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
@@ -18,7 +15,7 @@
 </head>
 <body class="bg-[#F0F2F5] text-gray-800 font-sans min-h-screen overflow-x-hidden selection:bg-[#00508F] selection:text-white">
 
-    <!-- TOP NAVBAR (Therap Yellow) -->
+    <!-- TOP NAVBAR -->
     <header class="bg-[#FDBA12] h-[60px] flex items-center justify-between px-6 shadow-sm border-b border-yellow-600">
         <div class="flex items-center gap-8">
             <h1 class="text-3xl font-extrabold text-[#00508F] italic tracking-tighter" style="font-family: Arial, sans-serif;">
@@ -27,13 +24,15 @@
             <span class="text-gray-900 font-semibold tracking-wide hidden md:block">API Integration Suite</span>
         </div>
         
+        <div class="hidden lg:block w-[400px]">
+            <input type="text" id="globalSearch" placeholder="Search" class="w-full px-4 py-1.5 rounded-sm shadow-inner border-none focus:outline-none focus:ring-2 focus:ring-[#00508F]/50">
+        </div>
         
         <div class="flex items-center gap-6 text-gray-900 font-semibold text-sm">
             <div class="flex items-center gap-2">
                 <i data-lucide="user" class="w-4 h-4 fill-current"></i> 
                 Mirza (MIR-NY)
             </div>
-            <!-- THE FIX: Added logoutBtn ID here -->
             <div id="logoutBtn" class="flex items-center gap-2 cursor-pointer hover:text-[#00508F] transition-colors">
                 <i data-lucide="log-out" class="w-4 h-4"></i> Logout
             </div>
@@ -48,11 +47,11 @@
             <div class="bg-[#E6EAF6] text-[#00508F] text-center font-bold py-2 border-b border-gray-200">
                 Tabs
             </div>
-            <nav class="flex flex-col py-2">
-                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-[#E6F0FA] text-[#00508F] font-bold border-l-4 border-[#00508F]">
+            <nav class="flex flex-col py-2" id="sidebarNav">
+                <a href="#" id="navAutomation" class="sidebar-link flex items-center gap-3 px-4 py-3 bg-[#E6F0FA] text-[#00508F] font-bold border-l-4 border-[#00508F]">
                     <i data-lucide="list-todo" class="w-5 h-5"></i> Automation
                 </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-[#00508F] font-semibold hover:bg-gray-50 transition-colors">
+                <a href="#" id="navIndividual" class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#00508F] font-semibold hover:bg-gray-50 transition-colors border-l-4 border-transparent">
                     <i data-lucide="user" class="w-5 h-5"></i> Individual
                 </a>
                 <a href="#" class="flex items-center gap-3 px-4 py-3 text-[#00508F] font-semibold hover:bg-gray-50 transition-colors">
@@ -70,96 +69,153 @@
             </nav>
         </div>
 
-        <!-- CENTER: Forms -->
-        <div class="lg:col-span-6 space-y-5">
+        <!-- CENTER: Main Modules -->
+        <div class="lg:col-span-6 space-y-5 relative">
             
-            <!-- STEP 1: AUTHENTICATION -->
-            <div class="bg-white rounded shadow-sm border border-gray-200 p-5">
-                <div class="flex justify-between items-end border-b-2 border-[#00508F] pb-2 mb-5">
-                    <h2 class="text-[#00508F] text-xl font-bold flex items-center gap-2">
-                        <i data-lucide="key" class="w-5 h-5 text-yellow-500"></i> Token Generation
-                    </h2>
-                    <span id="tokenStatus" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status: Inactive</span>
+            <!-- AUTOMATION VIEW -->
+            <div id="automationContainer" class="space-y-5">
+                <!-- STEP 1: AUTHENTICATION -->
+                <div class="bg-white rounded shadow-sm border border-gray-200 p-5" id="step1Panel">
+                    <div class="flex justify-between items-end border-b-2 border-[#00508F] pb-2 mb-5">
+                        <h2 class="text-[#00508F] text-xl font-bold flex items-center gap-2">
+                            <i data-lucide="key" class="w-5 h-5 text-yellow-500"></i> Token Generation
+                        </h2>
+                        <span id="tokenStatus" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status: Inactive</span>
+                    </div>
+
+                    <form id="authForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Login Name</label>
+                                <input type="text" id="loginName" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Provider Code</label>
+                                <input type="text" id="providerCode" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                            </div>
+                            <div class="relative">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Password</label>
+                                <input type="password" id="password" required class="w-full bg-white border border-gray-300 rounded-sm pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                <button type="button" id="togglePasswordBtn" class="absolute right-2 top-[22px] text-gray-500 hover:text-[#00508F]">
+                                    <i data-lucide="eye" id="eyeIcon" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" id="authBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-sm py-2 px-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors w-[200px]">
+                            <i data-lucide="lock" class="w-4 h-4"></i> Authenticate API
+                        </button>
+                    </form>
                 </div>
 
-                <form id="authForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Login Name</label>
-                            <input type="text" id="loginName" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                <!-- STEP 2: INPUT DATA -->
+                <div class="bg-white rounded shadow-sm border border-gray-200 p-5 opacity-50 pointer-events-none transition-opacity duration-300" id="step2Panel">
+                    <div class="flex justify-between items-end border-b-2 border-green-600 pb-2 mb-5">
+                        <h2 class="text-[#00508F] text-xl font-bold flex items-center gap-2">
+                            <i data-lucide="layout-template" class="w-5 h-5 text-green-600"></i> Attendance Data Input
+                        </h2>
+                    </div>
+
+                    <form id="payloadForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <!-- Form ID with Lookup Button -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Service Form ID <span class="text-red-500">*</span></label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="serviceFormId" class="payload-input flex-1 bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                    <button type="button" id="lookupFormBtn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-sm px-3 py-1.5 text-xs font-bold transition-colors">
+                                        Lookup
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Dropdown 1: Attendance Type -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Attendance Type</label>
+                                <select id="attendanceType" disabled class="w-full bg-gray-50 border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F] disabled:opacity-60">
+                                    <option value="">Enter Form ID first...</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Dropdown 2: Option Code -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Option Code <span class="text-red-500">*</span></label>
+                                <select id="optionCode" disabled class="payload-input w-full bg-gray-50 border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F] disabled:opacity-60">
+                                    <option value="">Select Type first...</option>
+                                </select>
+                            </div>
+
+                            <!-- Dates -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Service Date (Start) <span class="text-red-500">*</span></label>
+                                <input type="text" id="serviceDate" placeholder="MM/DD/YYYY" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                            </div>
+                            
+                            <!-- Times -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Time In</label>
+                                <input type="text" id="timeIn" placeholder="10:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Time Out</label>
+                                <input type="text" id="timeOut" placeholder="11:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                            </div>
+                            
+                            <!-- Bulk End Date -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Service Date (End) <span class="text-gray-400 font-normal text-[10px]">(Optional Bulk)</span></label>
+                                <input type="text" id="serviceDateEnd" placeholder="MM/DD/YYYY" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                            </div>
                         </div>
+
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Provider Code</label>
-                            <input type="text" id="providerCode" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Comments</label>
+                            <textarea id="comments" rows="2" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]"></textarea>
                         </div>
-                        <div class="relative">
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Password</label>
-                            <input type="password" id="password" required class="w-full bg-white border border-gray-300 rounded-sm pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                            <button type="button" id="togglePasswordBtn" class="absolute right-2 top-[22px] text-gray-500 hover:text-[#00508F]">
-                                <i data-lucide="eye" id="eyeIcon" class="w-4 h-4"></i>
+                        <div class="pt-2">
+                            <button type="submit" id="submitBtn" class="bg-[#00508F] hover:bg-[#003d6e] text-white rounded-sm py-2 px-6 text-sm font-bold flex items-center justify-center gap-2 transition-colors w-full md:w-auto">
+                                <i data-lucide="send" class="w-4 h-4"></i> Submit Attendance Data
                             </button>
                         </div>
-                    </div>
-                    <button type="submit" id="authBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-sm py-2 px-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors w-[200px]">
-                        <i data-lucide="lock" class="w-4 h-4"></i> Authenticate API
-                    </button>
-                </form>
+                    </form>
+                </div>
             </div>
 
-            <!-- STEP 2: INPUT DATA -->
-            <div class="bg-white rounded shadow-sm border border-gray-200 p-5 opacity-50 pointer-events-none transition-opacity duration-300" id="step2Panel">
-                <div class="flex justify-between items-end border-b-2 border-green-600 pb-2 mb-5">
+            <!-- INDIVIDUAL DIRECTORY VIEW -->
+            <div id="individualsContainer" class="bg-white rounded shadow-sm border border-gray-200 p-5 hidden">
+                <div class="flex justify-between items-end border-b-2 border-indigo-600 pb-2 mb-5">
                     <h2 class="text-[#00508F] text-xl font-bold flex items-center gap-2">
-                        <i data-lucide="layout-template" class="w-5 h-5 text-green-600"></i> Attendance Data Input
+                        <i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Individual Directory
                     </h2>
+                    <button id="fetchIndividualsBtn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-sm py-1 px-3 text-xs font-bold flex items-center gap-2 transition-colors">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> Load from Database
+                    </button>
                 </div>
 
-                <form id="payloadForm" class="space-y-4">
-                    <div class="grid grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Service Form ID <span class="text-red-500">*</span></label>
-                            <input type="text" id="serviceFormId" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Option Code <span class="text-red-500">*</span></label>
-                            <input type="text" id="optionCode" placeholder="e.g. P" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Service Date (Start) <span class="text-red-500">*</span></label>
-                            <input type="text" id="serviceDate" placeholder="MM/DD/YYYY" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Service Date (End) <span class="text-gray-400 font-normal text-[10px]">(Optional Bulk)</span></label>
-                            <input type="text" id="serviceDateEnd" placeholder="MM/DD/YYYY" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Time In</label>
-                            <input type="text" id="timeIn" placeholder="10:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Time Out</label>
-                            <input type="text" id="timeOut" placeholder="11:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">Comments</label>
-                        <textarea id="comments" rows="2" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]"></textarea>
-                    </div>
-
-                    <div class="pt-2">
-                        <button type="submit" id="submitBtn" class="bg-[#00508F] hover:bg-[#003d6e] text-white rounded-sm py-2 px-6 text-sm font-bold flex items-center justify-center gap-2 transition-colors w-full md:w-auto">
-                            <i data-lucide="send" class="w-4 h-4"></i> Submit Attendance Data
-                        </button>
-                    </div>
-                </form>
+                <div class="overflow-x-auto h-[550px] overflow-y-auto border border-gray-200">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="sticky top-0 bg-[#E6EAF6] shadow-sm">
+                            <tr class="text-[#00508F] border-b border-gray-300">
+                                <th class="py-2 px-3 font-bold">Client ID</th>
+                                <th class="py-2 px-3 font-bold">First Name</th>
+                                <th class="py-2 px-3 font-bold">Last Name</th>
+                                <th class="py-2 px-3 font-bold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="individualsTableBody" class="divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="4" class="py-8 text-center text-gray-500 italic">
+                                    Click "Load from Database" to fetch records for MIR-NY.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
         </div>
 
         <!-- RIGHT SIDEBAR: JSON Logs -->
         <div class="lg:col-span-4 space-y-5">
-            
             <div class="bg-white rounded shadow-sm border border-gray-200 overflow-hidden flex flex-col h-[300px]">
                 <div class="bg-[#E6EAF6] border-b border-gray-200 px-4 py-2 flex justify-between items-center">
                     <h3 class="text-[#00508F] font-bold text-sm flex items-center gap-2">
@@ -183,39 +239,150 @@
                     <pre id="responseLog" class="text-slate-400 text-[12px] font-mono leading-relaxed">// Submit request to view response...</pre>
                 </div>
             </div>
-
         </div>
     </div>
 
     <script>
         lucide.createIcons();
 
-        // DOM Elements
-        const authForm = document.getElementById('authForm');
-        const authBtn = document.getElementById('authBtn');
-        const tokenStatus = document.getElementById('tokenStatus');
-        const step2Panel = document.getElementById('step2Panel');
-        
-        const payloadForm = document.getElementById('payloadForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const payloadPreview = document.getElementById('payloadPreview');
-        const responseLog = document.getElementById('responseLog');
-        const responseStatus = document.getElementById('responseStatus');
-        const previewCountBadge = document.getElementById('previewCountBadge');
+        // --- View & Navigation Logic ---
+        const navAutomation = document.getElementById('navAutomation');
+        const navIndividual = document.getElementById('navIndividual');
+        const automationContainer = document.getElementById('automationContainer');
+        const individualsContainer = document.getElementById('individualsContainer');
 
-        // --- Password Eye Toggle ---
-        const passwordInput = document.getElementById('password');
-        const togglePasswordBtn = document.getElementById('togglePasswordBtn');
-        const eyeIcon = document.getElementById('eyeIcon');
+        function setActiveTab(activeNav, showContainer, inactiveNav, hideContainer) {
+            activeNav.classList.add('bg-[#E6F0FA]', 'font-bold', 'border-[#00508F]');
+            activeNav.classList.remove('font-semibold', 'border-transparent');
+            inactiveNav.classList.remove('bg-[#E6F0FA]', 'font-bold', 'border-[#00508F]');
+            inactiveNav.classList.add('font-semibold', 'border-transparent');
+            hideContainer.classList.add('hidden');
+            showContainer.classList.remove('hidden');
+        }
 
-        togglePasswordBtn.addEventListener('click', () => {
-            const isPassword = passwordInput.type === 'password';
-            passwordInput.type = isPassword ? 'text' : 'password';
-            eyeIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
-            lucide.createIcons();
+        navAutomation.addEventListener('click', (e) => {
+            e.preventDefault();
+            setActiveTab(navAutomation, automationContainer, navIndividual, individualsContainer);
         });
 
-        // --- Date Array Generator ---
+        navIndividual.addEventListener('click', (e) => {
+            e.preventDefault();
+            setActiveTab(navIndividual, individualsContainer, navAutomation, automationContainer);
+        });
+
+        // --- Fetch Database Logic (Individuals) ---
+        document.getElementById('fetchIndividualsBtn').addEventListener('click', async (e) => {
+            const btn = e.currentTarget;
+            const tableBody = document.getElementById('individualsTableBody');
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Loading...';
+            lucide.createIcons();
+            
+            try {
+                const res = await fetch('/api/individuals?providerCode=MIR-NY');
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Failed to fetch");
+                
+                tableBody.innerHTML = ''; 
+                if (data.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">No individuals found.</td></tr>`;
+                    return;
+                }
+
+                data.forEach(client => {
+                    const row = `
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-2 px-3 text-gray-800">${client.ID || client.CLIENT_ID || 'N/A'}</td>
+                            <td class="py-2 px-3 text-gray-800">${client.FIRST_NAME || 'N/A'}</td>
+                            <td class="py-2 px-3 text-gray-800">${client.LAST_NAME || 'N/A'}</td>
+                            <td class="py-2 px-3 text-gray-800">${client.STATUS || 'Active'}</td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            } catch (err) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500">Error: ${err.message}</td></tr>`;
+            } finally {
+                btn.innerHTML = '<i data-lucide="refresh-cw" class="w-3 h-3"></i> Load from Database';
+                lucide.createIcons();
+            }
+        });
+
+        // --- Cascading Dropdown Logic ---
+        const lookupFormBtn = document.getElementById('lookupFormBtn');
+        const attendanceTypeDropdown = document.getElementById('attendanceType');
+        const optionCodeDropdown = document.getElementById('optionCode');
+        const formIdInput = document.getElementById('serviceFormId');
+
+        // Step 1: Lookup Attendance Type based on Form ID
+        lookupFormBtn.addEventListener('click', async () => {
+            const formId = formIdInput.value.trim();
+            if (!formId) return alert("Please enter a Service Form ID.");
+
+            lookupFormBtn.innerHTML = '<i data-lucide="loader-2" class="w-3 h-3 animate-spin mx-auto"></i>';
+            lucide.createIcons();
+
+            try {
+                const res = await fetch(`/api/attendance-types?formId=${formId}`);
+                const data = await res.json();
+
+                attendanceTypeDropdown.innerHTML = ''; 
+                
+                if (data.length === 0) {
+                    attendanceTypeDropdown.innerHTML = '<option value="">No Type Found</option>';
+                    attendanceTypeDropdown.disabled = true;
+                    optionCodeDropdown.innerHTML = '<option value="">-</option>';
+                    optionCodeDropdown.disabled = true;
+                    throw new Error("Invalid Form ID or no Attendance Type configured.");
+                }
+
+                attendanceTypeDropdown.innerHTML = '<option value="">-- Select Type --</option>';
+                data.forEach(type => {
+                    attendanceTypeDropdown.innerHTML += `<option value="${type.ATTENDANCE_TYPE_ID}">${type.ATTENDANCE_TYPE_NAME}</option>`;
+                });
+                
+                attendanceTypeDropdown.disabled = false;
+                attendanceTypeDropdown.classList.replace('bg-gray-50', 'bg-white');
+                updateLivePreview();
+            } catch (err) {
+                console.error(err.message);
+            } finally {
+                lookupFormBtn.textContent = 'Lookup';
+            }
+        });
+
+        // Step 2: Lookup Options when Attendance Type is selected
+        attendanceTypeDropdown.addEventListener('change', async (e) => {
+            const typeId = e.target.value;
+            if (!typeId) {
+                optionCodeDropdown.innerHTML = '<option value="">Select Type first...</option>';
+                optionCodeDropdown.disabled = true;
+                updateLivePreview();
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/attendance-options?typeId=${typeId}`);
+                const data = await res.json();
+
+                optionCodeDropdown.innerHTML = '<option value="">-- Select Option Code --</option>';
+                
+                // Populate Dropdown 2 (Without the billable status)
+                data.forEach(opt => {
+                    optionCodeDropdown.innerHTML += `<option value="${opt.SHORT_CODE}">${opt.SHORT_CODE} - ${opt.ATTENDANCE_OPTION_NAME}</option>`;
+                });
+
+                optionCodeDropdown.disabled = false;
+                optionCodeDropdown.classList.replace('bg-gray-50', 'bg-white');
+                updateLivePreview();
+            } catch (err) {
+                console.error("Failed to fetch options", err);
+            }
+        });
+
+        // Add event listener so preview updates when the final dropdown changes
+        optionCodeDropdown.addEventListener('change', updateLivePreview);
+
+        // --- Payload Generation & Submission Logic ---
         function getDatesBetween(startDateStr, endDateStr) {
             if (!endDateStr) return [startDateStr]; 
             const dates = [];
@@ -253,8 +420,11 @@
             const endDate = document.getElementById('serviceDateEnd').value;
             const datesArray = getDatesBetween(startDate, endDate);
             
-            previewCountBadge.textContent = `${datesArray.length} PAYLOAD${datesArray.length > 1 ? 'S' : ''}`;
-            previewCountBadge.className = datesArray.length > 1 
+            const previewBadge = document.getElementById('previewCountBadge');
+            const payloadPreview = document.getElementById('payloadPreview');
+
+            previewBadge.textContent = `${datesArray.length} PAYLOAD${datesArray.length > 1 ? 'S' : ''}`;
+            previewBadge.className = datesArray.length > 1 
                 ? "text-[10px] font-bold bg-[#00508F] text-white px-2 py-0.5 rounded-sm"
                 : "text-[10px] font-bold bg-gray-500 text-white px-2 py-0.5 rounded-sm";
 
@@ -273,6 +443,22 @@
         updateLivePreview();
 
         // --- Step 1: Authentication ---
+        const authForm = document.getElementById('authForm');
+        const authBtn = document.getElementById('authBtn');
+        const tokenStatus = document.getElementById('tokenStatus');
+        const step2Panel = document.getElementById('step2Panel');
+
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+        const eyeIcon = document.getElementById('eyeIcon');
+        
+        togglePasswordBtn.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            eyeIcon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+            lucide.createIcons();
+        });
+
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             authBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Authenticating...';
@@ -298,7 +484,6 @@
                 tokenStatus.className = "text-xs font-bold text-green-600 uppercase tracking-wider";
                 authBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-green-600"></i> Authenticated';
                 step2Panel.classList.remove('opacity-50', 'pointer-events-none');
-                
             } catch (err) {
                 alert(err.message);
                 authBtn.innerHTML = '<i data-lucide="lock" class="w-4 h-4"></i> Authenticate API';
@@ -308,6 +493,11 @@
         });
 
         // --- Step 2: Submit Payload(s) ---
+        const payloadForm = document.getElementById('payloadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const responseLog = document.getElementById('responseLog');
+        const responseStatus = document.getElementById('responseStatus');
+
         payloadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             submitBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Submitting...';
@@ -366,8 +556,6 @@
             lucide.createIcons();
         });
 
-       
-
         // --- Logout Logic ---
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             const btn = document.getElementById('logoutBtn');
@@ -379,7 +567,6 @@
             } catch (err) {
                 console.error("Logout failed:", err);
             } finally {
-                // Redirect the user to the actual Therap login page
                 window.location.href = 'https://billing.therapdev.net/auth/login';
             }
         });
