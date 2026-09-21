@@ -150,20 +150,28 @@
                                 <input type="text" id="serviceDate" placeholder="MM/DD/YYYY" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
                             </div>
                             
-                            <!-- Times -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Time In</label>
-                                <input type="text" id="timeIn" placeholder="10:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Time Out</label>
-                                <input type="text" id="timeOut" placeholder="11:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                            </div>
-                            
                             <!-- Bulk End Date -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Service Date (End) <span class="text-gray-400 font-normal text-[10px]">(Optional Bulk)</span></label>
                                 <input type="text" id="serviceDateEnd" placeholder="MM/DD/YYYY" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                            </div>
+                            
+                            <!-- Time In / Out Container -->
+                            <div id="timeInOutContainer" class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Time In</label>
+                                    <input type="text" id="timeIn" placeholder="10:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Time Out</label>
+                                    <input type="text" id="timeOut" placeholder="11:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                </div>
+                            </div>
+                            
+                            <!-- Direct Units Container (Hidden by default) -->
+                            <div id="directUnitsContainer" class="col-span-1 md:col-span-2 hidden">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Direct Units</label>
+                                <input type="number" id="directUnits" step="0.25" placeholder="e.g. 4" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
                             </div>
                         </div>
 
@@ -335,9 +343,14 @@
                     throw new Error("Invalid Form ID or no Attendance Type configured.");
                 }
 
+                // Populate Dropdown 1 with hidden data attributes
                 attendanceTypeDropdown.innerHTML = '<option value="">-- Select Type --</option>';
                 data.forEach(type => {
-                    attendanceTypeDropdown.innerHTML += `<option value="${type.ATTENDANCE_TYPE_ID}">${type.ATTENDANCE_TYPE_NAME}</option>`;
+                    attendanceTypeDropdown.innerHTML += `<option value="${type.ATTENDANCE_TYPE_ID}" 
+                        data-time="${type.CAL_UNIT_FRM_TIME_IN_OUT}" 
+                        data-units="${type.USE_DIRECT_BILLING_UNITS}">
+                        ${type.ATTENDANCE_TYPE_NAME}
+                    </option>`;
                 });
                 
                 attendanceTypeDropdown.disabled = false;
@@ -360,6 +373,27 @@
                 return;
             }
 
+            // UI Toggle Logic based on selected Attendance Type flags
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const useTime = selectedOption.getAttribute('data-time') === '1';
+            const useUnits = selectedOption.getAttribute('data-units') === '1';
+
+            const timeContainer = document.getElementById('timeInOutContainer');
+            const unitsContainer = document.getElementById('directUnitsContainer');
+
+            if (useUnits === true && useTime === false) {
+                // Show Units, Hide Times
+                timeContainer.classList.add('hidden');
+                unitsContainer.classList.remove('hidden');
+                document.getElementById('timeIn').value = '';
+                document.getElementById('timeOut').value = '';
+            } else {
+                // Default: Show Times, Hide Units
+                timeContainer.classList.remove('hidden');
+                unitsContainer.classList.add('hidden');
+                document.getElementById('directUnits').value = '';
+            }
+
             try {
                 const res = await fetch(`/api/attendance-options?typeId=${typeId}`);
                 const data = await res.json();
@@ -379,7 +413,6 @@
             }
         });
 
-        // Add event listener so preview updates when the final dropdown changes
         optionCodeDropdown.addEventListener('change', updateLivePreview);
 
         // --- Payload Generation & Submission Logic ---
@@ -401,18 +434,30 @@
         }
 
         function generatePayloadObject(specificDate) {
-            return {
+            const timeInVal = document.getElementById('timeIn').value.trim();
+            const timeOutVal = document.getElementById('timeOut').value.trim();
+            const directUnitsVal = document.getElementById('directUnits').value.trim();
+
+            const payload = {
                 serviceFormId: document.getElementById('serviceFormId').value || "",
                 serviceDate: specificDate || document.getElementById('serviceDate').value || "",
                 optionCode: document.getElementById('optionCode').value || "",
-                timeInOut: [{
-                    timeIn: document.getElementById('timeIn').value || "",
-                    timeOut: document.getElementById('timeOut').value || "",
-                    billable: true,
-                    serviceType: 0
-                }],
                 comments: document.getElementById('comments').value || ""
             };
+
+            // Dynamically assign Direct Units or Time In/Out based on what is provided
+            if (directUnitsVal) {
+                payload.directUnits = parseFloat(directUnitsVal);
+            } else {
+                payload.timeInOut = [{
+                    timeIn: timeInVal,
+                    timeOut: timeOutVal,
+                    billable: true,
+                    serviceType: 0
+                }];
+            }
+
+            return payload;
         }
 
         function updateLivePreview() {
