@@ -19,7 +19,7 @@ app.post('/api/auth', async (req, res) => {
     try {
         const credentials = req.body;
         activeSession = new TherapClient(BASE_URL);
-        activeSession.providerCode = credentials.providerCode; // Store provider code for future validation
+        activeSession.providerCode = credentials.providerCode; // Store provider code for validation
         await activeSession.authenticate(credentials);
         
         res.status(200).json({ 
@@ -82,12 +82,20 @@ app.get('/api/individuals', async (req, res) => {
     }
 });
 
-// --- API ROUTE 5: Fetch Attendance Type by Form ID ---
+// --- API ROUTE 5: Fetch Attendance Type by Form ID (Provider Validated) ---
 app.get('/api/attendance-types', async (req, res) => {
     try {
         const { formId } = req.query;
         if (!formId) return res.status(400).json({ error: "formId is required" });
 
+        // Security check: Ensure we have an active session and provider code
+        if (!activeSession || !activeSession.providerCode) {
+            return res.status(401).json({ error: "Unauthorized. Please log in." });
+        }
+
+        const providerCode = activeSession.providerCode;
+
+        // The subquery ensures the Form ID belongs to the logged-in Provider
         const sql = `
             SELECT t.id AS attendance_type_id, 
                    t.type_name AS attendance_type_name,
@@ -96,9 +104,10 @@ app.get('/api/attendance-types', async (req, res) => {
             FROM bill_service bs
             JOIN attendance_type t ON bs.attendance_type_id = t.id
             WHERE bs.form_id = :formId
+              AND bs.prov_id = (SELECT id FROM provider WHERE code = :providerCode)
         `;
         
-        const result = await executeQuery(sql, { formId });
+        const result = await executeQuery(sql, { formId, providerCode });
         res.status(200).json(result.rows);
     } catch (error) {
         console.error("Error fetching Attendance Types:", error.message);

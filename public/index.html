@@ -31,7 +31,7 @@
         <div class="flex items-center gap-6 text-gray-900 font-semibold text-sm">
             <div class="flex items-center gap-2">
                 <i data-lucide="user" class="w-4 h-4 fill-current"></i> 
-                Mirza (MIR-NY)
+                Mirza
             </div>
             <div id="logoutBtn" class="flex items-center gap-2 cursor-pointer hover:text-[#00508F] transition-colors">
                 <i data-lucide="log-out" class="w-4 h-4"></i> Logout
@@ -116,12 +116,13 @@
                     </div>
 
                     <form id="payloadForm" class="space-y-4">
+                        <!-- SECTION 1: Always Visible -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <!-- Form ID with Lookup Button -->
+                            <!-- Form ID with Lookup Button (Updated with autocomplete off) -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Service Form ID <span class="text-red-500">*</span></label>
                                 <div class="flex gap-2">
-                                    <input type="text" id="serviceFormId" class="payload-input flex-1 bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                    <input type="text" id="serviceFormId" autocomplete="off" data-lpignore="true" class="payload-input flex-1 bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
                                     <button type="button" id="lookupFormBtn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-sm px-3 py-1.5 text-xs font-bold transition-colors">
                                         Lookup
                                     </button>
@@ -135,54 +136,59 @@
                                     <option value="">Enter Form ID first...</option>
                                 </select>
                             </div>
-                            
-                            <!-- Dropdown 2: Option Code -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Option Code <span class="text-red-500">*</span></label>
-                                <select id="optionCode" disabled class="payload-input w-full bg-gray-50 border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F] disabled:opacity-60">
-                                    <option value="">Select Type first...</option>
-                                </select>
-                            </div>
-
-                            <!-- Dates -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Service Date (Start) <span class="text-red-500">*</span></label>
-                                <input type="text" id="serviceDate" placeholder="MM/DD/YYYY" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                            </div>
-                            
-                            <!-- Bulk End Date -->
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Service Date (End) <span class="text-gray-400 font-normal text-[10px]">(Optional Bulk)</span></label>
-                                <input type="text" id="serviceDateEnd" placeholder="MM/DD/YYYY" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                            </div>
-                            
-                            <!-- Time In / Out Container -->
-                            <div id="timeInOutContainer" class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 mb-1">Time In</label>
-                                    <input type="text" id="timeIn" placeholder="10:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-700 mb-1">Time Out</label>
-                                    <input type="text" id="timeOut" placeholder="11:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                                </div>
-                            </div>
-                            
-                            <!-- Direct Units Container (Hidden by default) -->
-                            <div id="directUnitsContainer" class="col-span-1 md:col-span-2 hidden">
-                                <label class="block text-xs font-bold text-gray-700 mb-1">Direct Units</label>
-                                <input type="number" id="directUnits" step="0.25" placeholder="e.g. 4" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
-                            </div>
                         </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Comments</label>
-                            <textarea id="comments" rows="2" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]"></textarea>
-                        </div>
-                        <div class="pt-2">
-                            <button type="submit" id="submitBtn" class="bg-[#00508F] hover:bg-[#003d6e] text-white rounded-sm py-2 px-6 text-sm font-bold flex items-center justify-center gap-2 transition-colors w-full md:w-auto">
-                                <i data-lucide="send" class="w-4 h-4"></i> Submit Attendance Data
-                            </button>
+                        <!-- SECTION 2: Dependent Fields (Hidden by default) -->
+                        <div id="dependentFieldsContainer" class="hidden space-y-4 mt-4 pt-4 border-t border-gray-200">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <!-- Dropdown 2: Option Code -->
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Option Code <span class="text-red-500">*</span></label>
+                                    <select id="optionCode" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                        <option value="">Select Type first...</option>
+                                    </select>
+                                </div>
+
+                                <!-- Dates -->
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Service Date (Start) <span class="text-red-500">*</span></label>
+                                    <input type="text" id="serviceDate" placeholder="MM/DD/YYYY" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                </div>
+                                
+                                <!-- Bulk End Date -->
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Service Date (End) <span class="text-gray-400 font-normal text-[10px]">(Optional Bulk)</span></label>
+                                    <input type="text" id="serviceDateEnd" placeholder="MM/DD/YYYY" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                </div>
+                                
+                                <!-- Time In / Out Container -->
+                                <div id="timeInOutContainer" class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Time In</label>
+                                        <input type="text" id="timeIn" placeholder="10:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Time Out</label>
+                                        <input type="text" id="timeOut" placeholder="11:30 AM" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                    </div>
+                                </div>
+                                
+                                <!-- Direct Units Container (Hidden by default) -->
+                                <div id="directUnitsContainer" class="col-span-1 md:col-span-2 hidden">
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Direct Units</label>
+                                    <input type="number" id="directUnits" step="0.25" placeholder="e.g. 4" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Comments</label>
+                                <textarea id="comments" rows="2" class="payload-input w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]"></textarea>
+                            </div>
+                            <div class="pt-2">
+                                <button type="submit" id="submitBtn" class="bg-[#00508F] hover:bg-[#003d6e] text-white rounded-sm py-2 px-6 text-sm font-bold flex items-center justify-center gap-2 transition-colors w-full md:w-auto">
+                                    <i data-lucide="send" class="w-4 h-4"></i> Submit Attendance Data
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -212,7 +218,7 @@
                         <tbody id="individualsTableBody" class="divide-y divide-gray-200">
                             <tr>
                                 <td colspan="4" class="py-8 text-center text-gray-500 italic">
-                                    Click "Load from Database" to fetch records for MIR-NY.
+                                    Click "Load from Database" to fetch records.
                                 </td>
                             </tr>
                         </tbody>
@@ -309,11 +315,15 @@
         document.getElementById('fetchIndividualsBtn').addEventListener('click', async (e) => {
             const btn = e.currentTarget;
             const tableBody = document.getElementById('individualsTableBody');
+            
+            // Use active provider if known, fallback to MIR-NY
+            const provCode = localStorage.getItem('providerCode') || 'MIR-NY';
+            
             btn.innerHTML = '<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Loading...';
             lucide.createIcons();
             
             try {
-                const res = await fetch('/api/individuals?providerCode=MIR-NY');
+                const res = await fetch(`/api/individuals?providerCode=${provCode}`);
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Failed to fetch");
                 
@@ -350,6 +360,9 @@
 
         // Step 1: Lookup Attendance Type based on Form ID
         lookupFormBtn.addEventListener('click', async () => {
+            // Instantly hide dependent fields when starting a new lookup
+            document.getElementById('dependentFieldsContainer').classList.add('hidden');
+            
             const formId = formIdInput.value.trim();
             if (!formId) return alert("Please enter a Service Form ID.");
 
@@ -362,12 +375,17 @@
 
                 attendanceTypeDropdown.innerHTML = ''; 
                 
+                if (res.status === 401) {
+                    throw new Error("Unauthorized. Please authenticate again.");
+                }
+
                 if (data.length === 0) {
                     attendanceTypeDropdown.innerHTML = '<option value="">No Type Found</option>';
                     attendanceTypeDropdown.disabled = true;
                     optionCodeDropdown.innerHTML = '<option value="">-</option>';
                     optionCodeDropdown.disabled = true;
-                    throw new Error("Invalid Form ID or no Attendance Type configured.");
+                    // Update this error message to mention the provider check
+                    throw new Error("Invalid Form ID, or it does not belong to your active provider.");
                 }
 
                 // Populate Dropdown 1 with hidden data attributes
@@ -385,6 +403,7 @@
                 updateLivePreview();
             } catch (err) {
                 console.error(err.message);
+                alert(err.message);
             } finally {
                 lookupFormBtn.textContent = 'Lookup';
             }
@@ -393,12 +412,18 @@
         // Step 2: Lookup Options when Attendance Type is selected
         attendanceTypeDropdown.addEventListener('change', async (e) => {
             const typeId = e.target.value;
+            const dependentContainer = document.getElementById('dependentFieldsContainer');
+            
             if (!typeId) {
                 optionCodeDropdown.innerHTML = '<option value="">Select Type first...</option>';
                 optionCodeDropdown.disabled = true;
+                dependentContainer.classList.add('hidden'); // Hide if they select "-- Select Type --"
                 updateLivePreview();
                 return;
             }
+
+            // Reveal the rest of the form!
+            dependentContainer.classList.remove('hidden');
 
             // UI Toggle Logic based on selected Attendance Type flags
             const selectedOption = e.target.options[e.target.selectedIndex];
