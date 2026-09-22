@@ -253,6 +253,33 @@
     <script>
         lucide.createIcons();
 
+        // --- Restore Session & Form Data on Page Load ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const savedLogin = localStorage.getItem('loginName');
+            const savedProvider = localStorage.getItem('providerCode');
+            if (savedLogin) document.getElementById('loginName').value = savedLogin;
+            if (savedProvider) document.getElementById('providerCode').value = savedProvider;
+
+            try {
+                const res = await fetch('/api/auth/status');
+                const data = await res.json();
+
+                if (data.authenticated) {
+                    const tokenStatus = document.getElementById('tokenStatus');
+                    const authBtn = document.getElementById('authBtn');
+                    const step2Panel = document.getElementById('step2Panel');
+
+                    tokenStatus.textContent = "ACTIVE";
+                    tokenStatus.className = "text-xs font-bold text-green-600 uppercase tracking-wider";
+                    authBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-green-600"></i> Authenticated';
+                    step2Panel.classList.remove('opacity-50', 'pointer-events-none');
+                    lucide.createIcons();
+                }
+            } catch (err) {
+                console.error("Failed to check auth status", err);
+            }
+        });
+
         // --- View & Navigation Logic ---
         const navAutomation = document.getElementById('navAutomation');
         const navIndividual = document.getElementById('navIndividual');
@@ -516,6 +543,10 @@
                 password: document.getElementById('password').value
             };
 
+            // Save to localStorage for next refresh
+            localStorage.setItem('loginName', credentials.loginName);
+            localStorage.setItem('providerCode', credentials.providerCode);
+
             try {
                 const res = await fetch('/api/auth', {
                     method: 'POST',
@@ -609,10 +640,11 @@
             
             try {
                 await fetch('/api/logout', { method: 'POST' });
+                localStorage.clear(); // Wipe saved credentials
             } catch (err) {
                 console.error("Logout failed:", err);
             } finally {
-                window.location.href = 'https://billing.therapdev.net/auth/login';
+                window.location.reload(); // Reload to reset UI state
             }
         });
     </script>
