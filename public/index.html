@@ -54,18 +54,6 @@
                 <a href="#" id="navIndividual" class="sidebar-link flex items-center gap-3 px-4 py-3 text-[#00508F] font-semibold hover:bg-gray-50 transition-colors border-l-4 border-transparent">
                     <i data-lucide="user" class="w-5 h-5"></i> Individual
                 </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-[#00508F] font-semibold hover:bg-gray-50 transition-colors">
-                    <i data-lucide="line-chart" class="w-5 h-5"></i> Reporting
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-[#00508F] font-semibold hover:bg-gray-50 transition-colors">
-                    <i data-lucide="dollar-sign" class="w-5 h-5"></i> Billing
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-[#00508F] font-semibold hover:bg-gray-50 transition-colors">
-                    <i data-lucide="wrench" class="w-5 h-5"></i> Admin
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-[#00508F] font-semibold hover:bg-gray-50 transition-colors">
-                    <i data-lucide="settings" class="w-5 h-5"></i> Settings
-                </a>
             </nav>
         </div>
 
@@ -87,15 +75,15 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Login Name</label>
-                                <input type="text" id="loginName" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                <input type="text" id="loginName" required autocomplete="off" class="w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Provider Code</label>
-                                <input type="text" id="providerCode" required class="w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                <input type="text" id="providerCode" required autocomplete="off" class="w-full bg-white border border-gray-300 rounded-sm px-3 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
                             </div>
                             <div class="relative">
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Password</label>
-                                <input type="password" id="password" required class="w-full bg-white border border-gray-300 rounded-sm pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
+                                <input type="password" id="password" required autocomplete="new-password" class="w-full bg-white border border-gray-300 rounded-sm pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:border-[#00508F] focus:ring-1 focus:ring-[#00508F]">
                                 <button type="button" id="togglePasswordBtn" class="absolute right-2 top-[22px] text-gray-500 hover:text-[#00508F]">
                                     <i data-lucide="eye" id="eyeIcon" class="w-4 h-4"></i>
                                 </button>
@@ -118,7 +106,7 @@
                     <form id="payloadForm" class="space-y-4">
                         <!-- SECTION 1: Always Visible -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <!-- Form ID with Lookup Button (Updated with autocomplete off) -->
+                            <!-- Form ID with Lookup Button -->
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 mb-1">Service Form ID <span class="text-red-500">*</span></label>
                                 <div class="flex gap-2">
@@ -259,18 +247,16 @@
     <script>
         lucide.createIcons();
 
-        // --- Restore Session & Form Data on Page Load ---
+        // --- Restore Session Status on Page Load ---
         document.addEventListener('DOMContentLoaded', async () => {
-            const savedLogin = localStorage.getItem('loginName');
-            const savedProvider = localStorage.getItem('providerCode');
-            if (savedLogin) document.getElementById('loginName').value = savedLogin;
-            if (savedProvider) document.getElementById('providerCode').value = savedProvider;
-
             try {
                 const res = await fetch('/api/auth/status');
                 const data = await res.json();
 
                 if (data.authenticated) {
+                    // Store provider code in memory for the Individual Directory fetch
+                    window.activeProviderCode = data.providerCode; 
+
                     const tokenStatus = document.getElementById('tokenStatus');
                     const authBtn = document.getElementById('authBtn');
                     const step2Panel = document.getElementById('step2Panel');
@@ -316,8 +302,8 @@
             const btn = e.currentTarget;
             const tableBody = document.getElementById('individualsTableBody');
             
-            // Use active provider if known, fallback to MIR-NY
-            const provCode = localStorage.getItem('providerCode') || 'MIR-NY';
+            // Use active provider from memory, fallback to input field, then MIR-NY
+            const provCode = window.activeProviderCode || document.getElementById('providerCode').value || 'MIR-NY';
             
             btn.innerHTML = '<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Loading...';
             lucide.createIcons();
@@ -384,7 +370,6 @@
                     attendanceTypeDropdown.disabled = true;
                     optionCodeDropdown.innerHTML = '<option value="">-</option>';
                     optionCodeDropdown.disabled = true;
-                    // Update this error message to mention the provider check
                     throw new Error("Invalid Form ID, or it does not belong to your active provider.");
                 }
 
@@ -417,7 +402,7 @@
             if (!typeId) {
                 optionCodeDropdown.innerHTML = '<option value="">Select Type first...</option>';
                 optionCodeDropdown.disabled = true;
-                dependentContainer.classList.add('hidden'); // Hide if they select "-- Select Type --"
+                dependentContainer.classList.add('hidden'); 
                 updateLivePreview();
                 return;
             }
@@ -434,13 +419,11 @@
             const unitsContainer = document.getElementById('directUnitsContainer');
 
             if (useUnits === true && useTime === false) {
-                // Show Units, Hide Times
                 timeContainer.classList.add('hidden');
                 unitsContainer.classList.remove('hidden');
                 document.getElementById('timeIn').value = '';
                 document.getElementById('timeOut').value = '';
             } else {
-                // Default: Show Times, Hide Units
                 timeContainer.classList.remove('hidden');
                 unitsContainer.classList.add('hidden');
                 document.getElementById('directUnits').value = '';
@@ -452,7 +435,6 @@
 
                 optionCodeDropdown.innerHTML = '<option value="">-- Select Option Code --</option>';
                 
-                // Populate Dropdown 2 (Without the billable status)
                 data.forEach(opt => {
                     optionCodeDropdown.innerHTML += `<option value="${opt.SHORT_CODE}">${opt.SHORT_CODE} - ${opt.ATTENDANCE_OPTION_NAME}</option>`;
                 });
@@ -497,7 +479,6 @@
                 comments: document.getElementById('comments').value || ""
             };
 
-            // Dynamically assign Direct Units or Time In/Out based on what is provided
             if (directUnitsVal) {
                 payload.directUnits = parseFloat(directUnitsVal);
             } else {
@@ -568,10 +549,6 @@
                 password: document.getElementById('password').value
             };
 
-            // Save to localStorage for next refresh
-            localStorage.setItem('loginName', credentials.loginName);
-            localStorage.setItem('providerCode', credentials.providerCode);
-
             try {
                 const res = await fetch('/api/auth', {
                     method: 'POST',
@@ -580,6 +557,9 @@
                 });
 
                 if (!res.ok) throw new Error("Login failed");
+
+                // Store provider code in memory for the Individual Directory fetch
+                window.activeProviderCode = credentials.providerCode;
 
                 tokenStatus.textContent = "ACTIVE";
                 tokenStatus.className = "text-xs font-bold text-green-600 uppercase tracking-wider";
@@ -665,11 +645,10 @@
             
             try {
                 await fetch('/api/logout', { method: 'POST' });
-                localStorage.clear(); // Wipe saved credentials
             } catch (err) {
                 console.error("Logout failed:", err);
             } finally {
-                window.location.reload(); // Reload to reset UI state
+                window.location.reload(); 
             }
         });
     </script>
